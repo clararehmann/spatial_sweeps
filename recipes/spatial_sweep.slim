@@ -26,11 +26,12 @@ initialize()
         "L", 1e8, 			// genome size
         "LIFETIME", 4,				// mean lifetime
         "BURNIN", 100,		// number of ticks to wait before adding mutation
-        "FIXSTOP", F,      // whether to stop the simulation after fixation
-        "AFTERFIX", 100,   // how many generations to run after fixation
+        "FIXSTOP", T,      // whether to stop the simulation after fixation
+        "AFTERFIX", 1,   // how many generations to run after fixation
         "TREETICK", NAN,   // how often to output tree sequences (must be float)
         "FITNESS_FECUNDITY", F, // whether fitness should affect fecundity (default False)
         "OUTDIR", exists("OUTDIR") ? OUTDIR else ".",
+        "OUTPATH", exists("OUTPATH") ? OUTPATH else "simulation",
         "ParamFile", exists("ParamFile") ? ParamFile else "params.json"
     );
 
@@ -39,8 +40,8 @@ initialize()
         defaults.addKeysAndValuesFrom(local_params);
         defaults.setValue("read_from_paramfile", defaults.getValue("ParamFile"));
     }
-    defaults.setValue("TREEOUT", defaults.getValue("OUTDIR") + "/sim_" + defaults.getValue("SEED") + ".trees");
-    defaults.setValue("LOGOUT", defaults.getValue("OUTDIR") + "/sim_" + defaults.getValue("SEED") + ".log");
+    defaults.setValue("TREEOUT", defaults.getValue("OUTDIR") + "/" + defaults.getValue("OUTPATH") + ".trees");
+    defaults.setValue("LOGOUT", defaults.getValue("OUTDIR") + "/" + defaults.getValue("OUTPATH") + ".log");
 
     catn("-------------\n");
     for (k in defaults.allKeys) {
@@ -196,7 +197,7 @@ s1 late() {
     if (mutationadded) {
 
         if (sim.countOfMutationsOfType(m1)==0) {
-            sim.treeSeqOutput(TREEOUT, metadata=params);
+//            sim.treeSeqOutput(TREEOUT, metadata=params);
             sim.simulationFinished();
         }
 
