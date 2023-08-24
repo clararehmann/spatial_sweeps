@@ -17,7 +17,7 @@ initialize()
         "SD", 0.75,		// dispersal distance
         "SM", 0.75,		// mate interaction distance
         "SI", 0.75, 		// interaction distance
-        "S", 0.5,			// selection coefficient
+        "S", 0.01,			// selection coefficient
         "H", 0.5,				// dominance coefficient
         "RUNTIME", 100000,	// number of ticks to run for
         "HEIGHT", 25, 		// height of simulation map
@@ -25,7 +25,7 @@ initialize()
         "EDGE", 1,         // maximum distance from center for mutated individual
         "L", 1e8, 			// genome size
         "LIFETIME", 4,				// mean lifetime
-        "BURNIN", 100,		// number of ticks to wait before adding mutation
+        "BURNIN", 10,		// number of ticks to wait before adding mutation
         "FIXSTOP", T,      // whether to stop the simulation after fixation
         "AFTERFIX", 1,   // how many generations to run after fixation
         "TREETICK", NAN,   // how often to output tree sequences (must be float)
@@ -42,6 +42,7 @@ initialize()
     }
     defaults.setValue("TREEOUT", defaults.getValue("OUTDIR") + "/" + defaults.getValue("OUTPATH") + ".trees");
     defaults.setValue("LOGOUT", defaults.getValue("OUTDIR") + "/" + defaults.getValue("OUTPATH") + ".log");
+    defaults.setValue("STATEOUT", defaults.getValue("OUTDIR") + "/" + defaults.getValue("OUTPATH") + "-tick1.txt");
 
     catn("-------------\n");
     for (k in defaults.allKeys) {
@@ -146,7 +147,8 @@ function (float)mutDistance(o<Subpopulation>$ subpop) {
 1 early() {
     // schedule sim finish
     community.rescheduleScriptBlock(s1, ticks=BURNIN:RUNTIME);
-    community.rescheduleScriptBlock(s2, ticks=RUNTIME);
+    community.rescheduleScriptBlock(s2, ticks=BURNIN+1:RUNTIME);
+    community.rescheduleScriptBlock(s3, ticks=RUNTIME);
 }
 
 early() {
@@ -155,6 +157,11 @@ early() {
     inds = p1.individuals;
     competition = i1.localPopulationDensity(inds);
     inds.fitnessScaling = 1 / (1 + RHO * competition);
+}
+
+1 early() {
+	// save population state for restarting sim if mutation gets lost
+	sim.treeSeqOutput(STATEOUT);
 }
 
 1: late() {
@@ -193,12 +200,20 @@ s1 late() {
             catn("Origin point of mutation (x, y): (" + ind.x + "," + ind.y + ")");
         }
     }
-    // stop sim if mutation gets lost
+}
+
+s2 early() {
+    // restart sim if mutation gets lost
     if (mutationadded) {
 
         if (sim.countOfMutationsOfType(m1)==0) {
-//            sim.treeSeqOutput(TREEOUT, metadata=params);
-            sim.simulationFinished();
+        		cat("LOST -- RESTARTING");
+        		sim.readFromPopulationFile(STATEOUT);
+		  		setSeed(rdunif(1, 0, asInteger(2^62) - 1));
+		  		sim.recalculateFitness();   
+		  		i1.evaluate(p1);
+ 			   i2.evaluate(p1);         
+            
         }
 
         else if (p1.species.mutationFrequencies(NULL) == 1.0) {
@@ -224,7 +239,7 @@ s1 late() {
     }
 }
 
-s2 late() {
+s3 late() {
     sim.treeSeqOutput(TREEOUT, metadata=params);
     sim.simulationFinished();
 }
