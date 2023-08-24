@@ -17,7 +17,7 @@ Replicates = [0, 1]
 """
 
 S_coef = np.logspace(-5, -1, 5) # selection coefficients
-Nws = np.logspace(0, 3, 10) # wright neighborhood size
+Nws = np.logspace(0.75, 3, 10) # wright neighborhood size
 Replicates = np.arange(100)
 
 # calculate sigma values for given neighborhood size, given K=5
