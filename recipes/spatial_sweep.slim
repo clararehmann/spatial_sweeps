@@ -147,7 +147,7 @@ function (float)mutDistance(o<Subpopulation>$ subpop) {
 1 early() {
     // schedule sim finish
     community.rescheduleScriptBlock(s1, ticks=BURNIN:RUNTIME);
-    community.rescheduleScriptBlock(s2, ticks=BURNIN+1:RUNTIME);
+    community.rescheduleScriptBlock(s2, ticks=12:RUNTIME);
     community.rescheduleScriptBlock(s3, ticks=RUNTIME);
 }
 
@@ -207,12 +207,14 @@ s2 early() {
     if (mutationadded) {
 
         if (sim.countOfMutationsOfType(m1)==0) {
-        		cat("LOST -- RESTARTING");
+        		cat(community.tick);
+        		cat("LOST -- RESTARTING\n");
         		sim.readFromPopulationFile(STATEOUT);
 		  		setSeed(rdunif(1, 0, asInteger(2^62) - 1));
 		  		sim.recalculateFitness();   
 		  		i1.evaluate(p1);
- 			   i2.evaluate(p1);         
+ 			   i2.evaluate(p1);     
+ 			   defineGlobal("mutationadded",F);    
             
         }
 
