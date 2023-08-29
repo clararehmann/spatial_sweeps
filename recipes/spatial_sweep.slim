@@ -207,6 +207,7 @@ s2 early() {
     if (mutationadded) {
 
         if (sim.countOfMutationsOfType(m1)==0) {
+        		deleteFile(LOGOUT);
         		cat(community.tick);
         		cat("LOST -- RESTARTING\n");
         		sim.readFromPopulationFile(STATEOUT);
