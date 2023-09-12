@@ -10,28 +10,26 @@
 
 chrom=$1
 
-# run SNPEff
-module purge
-module load racs-eb/1
-module load Java/1.7.0_80
-module load snpEff/4.1d-Java-1.7.0_80
-
 if [ ! -f vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf ]; then
-    java -Xmx8g -jar ~/kernlab/snpEff/snpEff.jar Anopheles_gambiae \
+     # run SNPEff
+    module purge
+    module load racs-eb/1
+    module load Java/1.7.0_80
+    module load snpEff/4.1d-Java-1.7.0_80
+
+   java -Xmx8g -jar ~/kernlab/snpEff/snpEff.jar Anopheles_gambiae \
     vcf/ag1000g.agam.n1470.merged_variants.$chrom\.vcf.gz > vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf
 fi
 
 # bgzip
-module purge
-module load easybuild GCC/4.9.3-2.25  OpenMPI/1.10.2
-module load HTSlib/1.6
+mamba activate bgzip
 
 if [ ! -f vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf.gz ]; then
     bgzip -c -i vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf > vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf.gz
 fi
 
 # tabix
-module load bcftools
+
 
 if [ ! -f ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf.gz.tbi ]; then
     tabix -f -p vcf vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf.gz
