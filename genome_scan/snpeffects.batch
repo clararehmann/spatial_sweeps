@@ -5,7 +5,7 @@
 #SBATCH --output=logs/%j-snp.out
 #SBATCH --error=logs/%j-snp.err
 #SBATCH --nodes=1
-#SBATCH --mem=100G
+#SBATCH --mem=10G
 #SBATCH --time=10:00:00
 
 chrom=$1
@@ -22,7 +22,6 @@ if [ ! -f vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf ]; then
 fi
 
 # bgzip
-mamba activate bgzip
 
 if [ ! -f vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf.gz ]; then
     bgzip -c -i vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf > vcf/ag1000g.agam.n1470.merged_variants.$chrom\.ann.vcf.gz
